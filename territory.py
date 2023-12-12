@@ -32,21 +32,27 @@ class Territory:
 
         print(f"{self.name} ({num_attacker_troops} troops) vs {target_territory.name} ({target_territory.troops} troops):")
 
+        combat_results = []  # Adicione esta linha
+
         # Compare os dados e subtraia as tropas do atacante ou do defensor
         for a, d in zip(attacker_dice, defender_dice):
             if a > d:
                 troops_lost = min(self.num_attacker_troops, target_territory.troops)
                 target_territory.remove_troops(troops_lost)
-                print(f"Attacker wins! {troops_lost} troops lost by the defender.")
+                combat_result = f"Attacker wins! {troops_lost} troops lost by the defender."
             else:
                 troops_lost = min(target_territory.troops, self.troops)
                 self.remove_troops(troops_lost)
-                print(f"Defender wins! {troops_lost} troops lost by the attacker.")
+                combat_result = f"Defender wins! {troops_lost} troops lost by the attacker."
+
+            combat_results.append(combat_result)
 
         # Verifique se o território alvo ficou sem tropas e não tem jogadores
         if target_territory.troops == 0 and not target_territory.players:
             target_territory.add_player(self.players[0])
-            print(f"{self.name} conquered {target_territory.name}!")
+            combat_results.append(f"{self.name} conquered {target_territory.name}!")
+
+        return combat_results
             
     def get_status(self):
         player_names = [player.name for player in self.players]
