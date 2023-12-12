@@ -185,6 +185,29 @@ def choose_target_territory(territories, current_player):
         SCREEN.blit(TARGET_INPUT_TEXT, (input_rect.x + 5, input_rect.y + 5))
 
         pygame.display.update()
+
+def show_combat_results(screen, combat_results):
+    input_active = True
+
+    while input_active:
+        screen.fill("black")
+        y_offset = 200
+
+        for result in combat_results:
+            combat_result_text = get_font(30).render(result, True, "White")
+            combat_result_rect = combat_result_text.get_rect(center=(640, y_offset))
+            screen.blit(combat_result_text, combat_result_rect)
+            y_offset += 30
+
+        pygame.display.update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    input_active = False
                 
 def play(num_players, player_names):
     territories = assign_players_to_territories(player_names)
@@ -252,20 +275,22 @@ def play(num_players, player_names):
                         result = current_territory.attack(target_territory, troops_for_attack)
 
                         if result is not None:
-                            combat_results.append(result)
+                            combat_results.extend(result)
 
-                        if target_territory.troops == 0 and not target_territory.players:
-                            target_territory.add_player(current_territory.players[0])
-                        
                         # Exibir o resultado do combate na tela
-                        SCREEN.fill("black")
-                        y_offset = 200
-                        for result in combat_results:
-                            combat_result_text = get_font(30).render(result, True, "White")
-                            combat_result_rect = combat_result_text.get_rect(center=(640, y_offset))
-                            SCREEN.blit(combat_result_text, combat_result_rect)
-                            y_offset += 30
-                        pygame.display.update()
+                        show_combat_results(SCREEN, combat_results)
+
+                        # Agora, esperar até que o jogador pressione Enter para continuar
+                        input_active = True
+                        while input_active:
+                            for event in pygame.event.get():
+                                if event.type == pygame.QUIT:
+                                    pygame.quit()
+                                    sys.exit()
+                                elif event.type == pygame.KEYDOWN:
+                                    if event.key == pygame.K_RETURN:
+                                        input_active = False
+
                 elif ACTION_MOVE_TROOPS.checkForInput(PLAY_MOUSE_POS):
                     pass
 
